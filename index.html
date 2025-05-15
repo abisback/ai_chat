@@ -6,7 +6,7 @@
     <title>Cool Chatbot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> {/* For Send Icon */}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -332,7 +332,7 @@
         // Ensure initial messages are added to history if not already present
         // The first bot message is in HTML, this adds the second one if not present.
         if (!conversationHistoryForDisplay.find(m => m.content.startsWith("Reminder:"))) {
-             addMessageToChat("Reminder: The API key used in this demo is visible in the browser's developer tools. For a real application, this should be handled by a secure backend.", "bot");
+             addMessageToChat("How Can i help you...", "bot");
         }
          // Correcting the initial bot message in JS if "What can i help with." was added previously
         const initialBotMessageContent = "Hi there! How can I help you today?";
