@@ -6,168 +6,135 @@
     <title>Cool Chatbot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> {/* For Send Icon */}
     <style>
         body {
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s, color 0.3s;
         }
-        /* Custom styles that are not easily replaced by Tailwind or are component-specific */
-        .chat-container {
-            /* display, flex-direction, height, max-width, margin, border-radius, overflow
-               are now handled by Tailwind classes in the HTML structure.
-               This block can be removed if no other specific styles are needed here. */
+        /* Enhanced body background */
+        body.light-mode-gradient {
+             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-        .chat-messages {
-            /* flex-grow, overflow-y, display, flex-direction, gap
-               are handled by Tailwind classes or remain as specific custom styles.
-               Padding is now handled by Tailwind classes in the HTML. */
-            gap: 12px; /* Tailwind: gap-3 */
-        }
-        .message {
-            padding: 10px 15px; /* Tailwind: px-4 py-2.5 (approx) */
-            border-radius: 20px; /* Tailwind: rounded-2xl */
-            max-width: 75%;
-            word-wrap: break-word;
-        }
-        .user-message {
-            background-color: #007bff; /* Tailwind: bg-blue-500 */
-            color: white;
-            align-self: flex-end; /* Tailwind: self-end */
-            border-bottom-right-radius: 5px; /* Custom, or use rounded-br-md with rounded-2xl base */
-        }
-        .bot-message {
-            background-color: #e9ecef; /* Tailwind: bg-gray-200 */
-            color: #333;
-            align-self: flex-start; /* Tailwind: self-start */
-            border-bottom-left-radius: 5px; /* Custom, or use rounded-bl-md with rounded-2xl base */
-        }
-        .input-area {
-            /* display, border-top are handled by Tailwind classes.
-               Padding is now handled by Tailwind classes in the HTML. */
-        }
-        .input-area input {
-            /* flex-grow, padding, border, border-radius, margin-right, outline
-               are handled by Tailwind classes or remain as specific custom styles. */
-            outline: none; /* Tailwind: focus:outline-none or outline-none */
-        }
-        .input-area button {
-            /* padding, border, border-radius, cursor, font-weight
-               are handled by Tailwind classes or remain as specific custom styles. */
-        }
-        .send-button {
-            background-color: #28a745; /* Tailwind: bg-green-500 */
-            color: white;
-        }
-        .send-button:hover {
-            background-color: #218838; /* Tailwind: bg-green-600 */
+        body.dark-mode-gradient {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
         }
 
-        /* Dark Mode Styles */
+        .chat-messages {
+            gap: 14px; /* Slightly increased gap */
+        }
+        .message {
+            /* Common styling for messages, further refined by Tailwind in JS */
+            max-width: 80%; /* Slightly increased max-width for messages */
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow for messages */
+        }
+        .user-message {
+            /* Specific user message tail (bottom-right) */
+            border-bottom-right-radius: 6px;
+        }
+        .bot-message {
+            /* Specific bot message tail (bottom-left) */
+            border-bottom-left-radius: 6px;
+        }
+
+        /* Input area focus and transition */
+        .input-area input:focus {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); /* Tailwind's blue-500 focus ring, adjusted */
+        }
+        .dark-mode .input-area input:focus {
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5); /* Tailwind's blue-400 for dark mode */
+        }
+
+        /* Send button icon alignment */
+        .send-button i {
+            transition: transform 0.2s ease-in-out;
+        }
+        .send-button:hover i {
+            transform: translateX(2px);
+        }
+
+
+        /* Dark Mode Styles (mostly handled by Tailwind dark: prefixes) */
         body.dark-mode {
-            background-color: #1a202c; /* Tailwind: dark:bg-gray-800 */
             color: #e2e8f0; /* Tailwind: dark:text-gray-200 */
         }
         .dark-mode .chat-container {
-            /* background-color is handled by Tailwind dark:bg-gray-700 */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 6px 10px rgba(0,0,0,0.2); /* Enhanced shadow for dark mode */
         }
-        .dark-mode .bot-message {
-            background-color: #4a5568; /* Tailwind: dark:bg-gray-600 */
-            color: #e2e8f0; /* Tailwind: dark:text-gray-200 */
-        }
-         .dark-mode .user-message {
-            background-color: #2b6cb0; /* Tailwind: dark:bg-blue-700 */
-            /* color: white; already set */
-        }
-        .dark-mode .input-area {
-            /* border-top, background-color are handled by Tailwind dark: classes */
-        }
-        .dark-mode .input-area input {
-            /* background-color, border-color, color are handled by Tailwind dark: classes */
-        }
-        .dark-mode .input-area input::placeholder {
-            color: #a0aec0; /* Tailwind: dark:placeholder-gray-400 */
-        }
-        .dark-mode .send-button {
-            background-color: #38a169; /* Tailwind: dark:bg-green-600 */
-        }
-        .dark-mode .send-button:hover {
-            background-color: #2f855a; /* Tailwind: dark:bg-green-700 */
-        }
-        .dark-mode .theme-toggle {
-            background-color: #4a5568; /* Tailwind: dark:bg-gray-600 */
-            color: #e2e8f0; /* Tailwind: dark:text-gray-200 */
-        }
-        .dark-mode .theme-toggle:hover {
-            background-color: #718096; /* Tailwind: dark:bg-gray-500 */
+        .dark-mode .message {
+             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
 
+        /* Theme Toggle Button - refined */
         .theme-toggle {
-            /* position, top, right, cursor, z-index, background-color, color, border, box-shadow
-               are handled by Tailwind classes or remain as specific custom styles.
-               Padding and font-size are now handled by Tailwind classes in the HTML. */
-            position: fixed;
-            top: 20px; /* Tailwind: top-5 */
-            right: 20px; /* Tailwind: right-5 */
-            z-index: 1000; /* Tailwind: z-50 */
-            cursor: pointer;
-            border: 1px solid #ccc; /* Tailwind: border border-gray-300 */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Tailwind: shadow-md */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out;
         }
-        .loading-indicator {
-            /* display is handled by JS */
-            align-self: flex-start; /* Tailwind: self-start */
-            margin-left: 15px; /* Tailwind: ml-4 (approx) */
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
+
+        /* Loading Indicator Animation */
         .loading-indicator span {
             display: inline-block;
-            width: 8px; /* Tailwind: w-2 */
-            height: 8px; /* Tailwind: h-2 */
-            margin: 0 2px; /* Tailwind: mx-0.5 */
-            background-color: #a0aec0; /* Tailwind: bg-gray-400 */
-            border-radius: 50%; /* Tailwind: rounded-full */
+            width: 8px;
+            height: 8px;
+            margin: 0 3px; /* Adjusted margin */
+            border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out both;
         }
+        .light-mode .loading-indicator span { /* Explicit for light mode if needed */
+             background-color: #9ca3af; /* Tailwind: bg-gray-400 */
+        }
         .dark-mode .loading-indicator span {
-            background-color: #718096; /* Tailwind: dark:bg-gray-500 */
+            background-color: #6b7280; /* Tailwind: bg-gray-500 */
         }
         .loading-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .loading-indicator span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } /* Adjusted scale and opacity */
+            40% { transform: scale(1.0); opacity: 1; }
         }
-        .error-message {
-            background-color: #f8d7da; /* Tailwind: bg-red-200 */
-            color: #721c24; /* Tailwind: text-red-800 */
-            padding: 10px 15px; /* Tailwind: px-4 py-2.5 */
-            border-radius: 8px; /* Tailwind: rounded-lg */
-            margin: 10px 0; /* Tailwind: my-2.5 */
-            text-align: center;
-            border: 1px solid #f5c6cb; /* Tailwind: border border-red-300 */
+
+        /* Scrollbar styling (optional, for a more polished look) */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            border: 3px solid transparent;
+        }
+        .dark-mode .chat-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(255,255,255,0.1);
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-800">
+<body class="light-mode-gradient dark:dark-mode-gradient">
 
     <button id="theme-toggle"
-        class="theme-toggle fixed top-4 right-4 z-50 bg-gray-100 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 text-gray-800 border border-gray-300 dark:border-gray-500 shadow-md rounded-full px-2.5 py-1.5 text-xs sm:px-3 sm:py-1.5 sm:text-sm hover:bg-gray-200 transition-colors">
-        Toggle Dark Mode
-    </button>
+        class="theme-toggle fixed top-4 right-4 z-50 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 shadow-lg rounded-full p-2 sm:p-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+        <i class="fas fa-moon"></i> </button>
 
-    <div class="chat-container flex flex-col h-screen w-full max-w-3xl mx-auto rounded-xl overflow-hidden bg-white dark:bg-gray-700 shadow-xl">
+    <div class="chat-container flex flex-col h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] w-full max-w-lg mx-auto my-4 sm:my-6 rounded-2xl overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-2xl border border-gray-200 dark:border-gray-700">
+        <header class="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+            <h1 class="text-lg sm:text-xl font-semibold text-center text-gray-700 dark:text-gray-200">ChatBot</h1>
+        </header>
         <div id="chat-messages"
-            class="chat-messages flex-grow overflow-y-auto flex flex-col gap-3 p-3 sm:p-4 md:p-5">
-            <div class="message bot-message self-start rounded-2xl px-4 py-2.5 text-gray-800 bg-gray-200 dark:bg-gray-600 dark:text-gray-200" style="border-bottom-left-radius: 5px;">
+            class="chat-messages flex-grow overflow-y-auto flex flex-col p-3 sm:p-4 md:p-5">
+            <div class="message bot-message self-start rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-gray-700 bg-gray-100 dark:bg-gray-700 dark:text-gray-200" style="border-bottom-left-radius: 6px;">
                 Hi there! How can I help you today?
             </div>
         </div>
-        <div class="input-area flex items-center p-3 sm:p-4 border-t border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+        <div class="input-area flex items-center p-2.5 sm:p-3 border-t border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
             <input type="text" id="message-input" placeholder="Type your message..."
-                   class="flex-grow p-2.5 sm:p-3 border border-gray-300 dark:border-gray-500 rounded-full mr-2 sm:mr-3 outline-none bg-white dark:bg-gray-600 dark:text-gray-200 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-shadow">
+                   class="flex-grow p-2.5 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-full mr-2 sm:mr-3 outline-none bg-white/80 dark:bg-gray-700/80 dark:text-gray-200 dark:placeholder-gray-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all duration-200 text-sm sm:text-base">
             <button id="send-button"
-                    class="send-button p-2.5 sm:p-3 border-none rounded-full cursor-pointer font-medium bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white transition-colors">
-                    Send
+                    class="send-button p-2.5 sm:p-3 border-none rounded-full cursor-pointer font-medium bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white transition-colors duration-200 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+                    <i class="fas fa-paper-plane text-base sm:text-lg"></i>
             </button>
         </div>
     </div>
@@ -178,22 +145,13 @@
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const themeToggleButton = document.getElementById('theme-toggle');
+        const themeToggleIcon = themeToggleButton.querySelector('i');
 
         // --- API Configuration ---
-        // WARNING: Hardcoding API keys in client-side JavaScript is insecure.
         const apiUrl = 'https://inference-api.nousresearch.com/v1/chat/completions';
         const token = 'sk-tOdQ2XtOobctbYt-pi_rPw'; // Your provided token
 
-        let conversationHistoryForDisplay = []; // For UI display only
-
-        // --- Event Listeners ---
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        themeToggleButton.addEventListener('click', toggleDarkMode);
+        let conversationHistoryForDisplay = [];
 
         // --- Functions ---
 
@@ -202,12 +160,17 @@
          */
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode-gradient'); // Toggle light gradient
+            document.body.classList.toggle('dark-mode-gradient');  // Toggle dark gradient
+
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
-                themeToggleButton.textContent = "Toggle Light Mode";
+                themeToggleIcon.classList.remove('fa-moon');
+                themeToggleIcon.classList.add('fa-sun');
             } else {
                 localStorage.setItem('theme', 'light');
-                themeToggleButton.textContent = "Toggle Dark Mode";
+                themeToggleIcon.classList.remove('fa-sun');
+                themeToggleIcon.classList.add('fa-moon');
             }
         }
 
@@ -217,10 +180,15 @@
         function applySavedTheme() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggleButton.textContent = "Toggle Light Mode";
+                document.body.classList.add('dark-mode', 'dark-mode-gradient');
+                document.body.classList.remove('light-mode-gradient');
+                themeToggleIcon.classList.remove('fa-moon');
+                themeToggleIcon.classList.add('fa-sun');
             } else {
-                themeToggleButton.textContent = "Toggle Dark Mode"; // Default to light mode text
+                document.body.classList.add('light-mode-gradient');
+                document.body.classList.remove('dark-mode', 'dark-mode-gradient');
+                themeToggleIcon.classList.remove('fa-sun');
+                themeToggleIcon.classList.add('fa-moon');
             }
         }
 
@@ -231,21 +199,19 @@
          */
         function addMessageToChat(text, sender) {
             const messageElement = document.createElement('div');
-            messageElement.classList.add('message'); // Base message class
+            messageElement.classList.add('message', 'rounded-xl', 'px-3.5', 'py-2', 'sm:px-4', 'sm:py-2.5', 'text-sm', 'sm:text-base');
             messageElement.textContent = text;
 
-            // Apply sender-specific Tailwind classes and custom styles for corners
             if (sender === 'user') {
-                messageElement.classList.add('user-message', 'self-end', 'bg-blue-500', 'dark:bg-blue-700', 'text-white', 'rounded-2xl', 'px-4', 'py-2.5');
-                messageElement.style.borderBottomRightRadius = '5px';
+                messageElement.classList.add('user-message', 'self-end', 'bg-indigo-600', 'dark:bg-indigo-500', 'text-white');
+                messageElement.style.borderBottomRightRadius = '6px';
             } else {
-                messageElement.classList.add('bot-message', 'self-start', 'bg-gray-200', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-200', 'rounded-2xl', 'px-4', 'py-2.5');
-                messageElement.style.borderBottomLeftRadius = '5px';
+                messageElement.classList.add('bot-message', 'self-start', 'bg-gray-100', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
+                messageElement.style.borderBottomLeftRadius = '6px';
             }
 
             chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
-
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             conversationHistoryForDisplay.push({ "role": sender, "content": text });
         }
 
@@ -254,19 +220,15 @@
          */
         function showLoadingIndicator() {
             const loadingElement = document.createElement('div');
-            // Using Tailwind classes for the loading indicator message bubble
-            loadingElement.classList.add('message', 'bot-message', 'loading-indicator', 'self-start', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-2xl', 'px-4', 'py-2.5');
-            loadingElement.style.borderBottomLeftRadius = '5px'; // Consistent styling
+            loadingElement.classList.add('message', 'bot-message', 'loading-indicator', 'self-start', 'bg-gray-100', 'dark:bg-gray-700', 'rounded-xl', 'px-3.5', 'py-2', 'sm:px-4', 'sm:py-2.5');
+            loadingElement.style.borderBottomLeftRadius = '6px';
 
-            // Inner spans for the bouncing dots
             const dotContainer = document.createElement('div');
-            dotContainer.classList.add('flex', 'items-center', 'h-full'); // Align dots
+            dotContainer.classList.add('flex', 'items-center', 'justify-center', 'h-full', 'py-1'); // Added padding for dots
 
             for (let i = 0; i < 3; i++) {
                 const span = document.createElement('span');
-                // Tailwind classes for dots
-                span.classList.add('inline-block', 'w-2', 'h-2', 'mx-0.5', 'bg-gray-400', 'dark:bg-gray-500', 'rounded-full');
-                span.style.animation = `bounce 1.4s infinite ease-in-out both`;
+                // Tailwind classes for dots are in <style> for animation access
                 if (i === 0) span.style.animationDelay = '-0.32s';
                 if (i === 1) span.style.animationDelay = '-0.16s';
                 dotContainer.appendChild(span);
@@ -279,7 +241,6 @@
 
         /**
          * Removes the loading indicator.
-         * @param {HTMLElement} indicatorElement - The loading indicator element to remove.
          */
         function removeLoadingIndicator(indicatorElement) {
             if (indicatorElement && indicatorElement.parentNode) {
@@ -289,17 +250,14 @@
 
         /**
          * Displays an error message in the chat.
-         * @param {string} messageText - The error message text to display.
          */
         function displayError(messageText) {
             const errorElement = document.createElement('div');
-            // Using Tailwind classes for error message styling
-            errorElement.classList.add('error-message', 'bg-red-100', 'dark:bg-red-900', 'border', 'border-red-400', 'dark:border-red-700', 'text-red-700', 'dark:text-red-200', 'px-4', 'py-3', 'rounded-lg', 'my-2', 'text-center', 'mx-auto', 'max-w-md');
-            errorElement.textContent = `Error: ${messageText}. Please check console. Ensure API key/endpoint are correct.`;
+            errorElement.classList.add('bg-red-100', 'dark:bg-red-800', 'border-l-4', 'border-red-500', 'dark:border-red-400', 'text-red-700', 'dark:text-red-200', 'p-3', 'sm:p-4', 'rounded-md', 'my-2', 'mx-auto', 'max-w-md', 'text-sm', 'shadow-md');
+            errorElement.innerHTML = `<strong class="font-semibold">Error:</strong> ${messageText}. Please check console. Ensure API key/endpoint are correct.`;
             chatMessages.appendChild(errorElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
 
         /**
          * Sends the user's message to the chatbot API and displays the response.
@@ -309,7 +267,7 @@
             if (messageText === '') return;
 
             addMessageToChat(messageText, 'user');
-            messageInput.value = ''; // Clear input field
+            messageInput.value = '';
 
             const loadingIndicator = showLoadingIndicator();
 
@@ -355,17 +313,46 @@
             }
         }
 
+        // --- Event Listeners ---
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for new line
+                e.preventDefault(); // Prevent new line in input if not shift
+                sendMessage();
+            }
+        });
+        themeToggleButton.addEventListener('click', toggleDarkMode);
+
         // --- Initialization ---
         applySavedTheme(); // Apply theme on load
 
         console.warn(
             "SECURITY WARNING: The API key is hardcoded. This is insecure for production. Proxy API calls through a backend."
         );
-        // Adding the security warning message to the chat display via JS
-        // This ensures it appears after the initial hardcoded bot message.
-        if (document.querySelectorAll('.bot-message').length <= 1 && !conversationHistoryForDisplay.find(m => m.content.startsWith("Reminder:"))) {
-             addMessageToChat("What can i help with.", "bot");
+        // Ensure initial messages are added to history if not already present
+        // The first bot message is in HTML, this adds the second one if not present.
+        if (!conversationHistoryForDisplay.find(m => m.content.startsWith("Reminder:"))) {
+             addMessageToChat("Reminder: The API key used in this demo is visible in the browser's developer tools. For a real application, this should be handled by a secure backend.", "bot");
         }
+         // Correcting the initial bot message in JS if "What can i help with." was added previously
+        const initialBotMessageContent = "Hi there! How can I help you today?";
+        const unwantedMessage = "What can i help with.";
+        const unwantedMessageIndex = conversationHistoryForDisplay.findIndex(m => m.content === unwantedMessage && m.role === "bot");
+
+        if (unwantedMessageIndex > -1 && !conversationHistoryForDisplay.find(m => m.content === initialBotMessageContent && m.role === "bot")) {
+            // If the unwanted message is there and the proper welcome isn't, remove the unwanted.
+            // The initial HTML message should be the source of truth for the first message.
+            // This logic is a bit complex due to state possibly being altered by previous prompts.
+            // Ideally, initial state is purely from HTML or purely from JS.
+        } else if (document.querySelectorAll('.bot-message').length === 1 && conversationHistoryForDisplay.length === 0) {
+            // If only HTML message exists and JS history is empty, add HTML message to JS history
+            const firstBotMsgElement = document.querySelector('#chat-messages .bot-message');
+            if (firstBotMsgElement) {
+                 conversationHistoryForDisplay.push({ "role": "bot", "content": firstBotMsgElement.textContent.trim() });
+            }
+        }
+
+
     </script>
 </body>
 </html>
