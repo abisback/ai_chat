@@ -200,9 +200,15 @@
         const apiUrl = 'https://inference-api.nousresearch.com/v1/chat/completions';
         const token = 'sk-tOdQ2XtOobctbYt-pi_rPw'; // Your provided token
 
-        let conversationHistory = [
-            { "role": "system", "content": "You are a helpful assistant." }
+        // This conversationHistory is for displaying the chat in the UI.
+        // The API will receive only the latest user message as per the new requirement.
+        let conversationHistoryForDisplay = [
+             // System message can be added here if needed for local display logic,
+             // but it won't be sent to the API with each message if only the latest user message is sent.
+             // Example: { "role": "system", "content": "You are a helpful assistant.", type: "system" }
+             // For now, the first bot message is hardcoded in HTML.
         ];
+
 
         // --- Event Listeners ---
         sendButton.addEventListener('click', sendMessage);
@@ -220,7 +226,6 @@
          */
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            // Optionally, save preference to localStorage
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
                 themeToggleButton.textContent = "Toggle Light Mode";
@@ -254,6 +259,11 @@
             messageElement.textContent = text;
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+
+            // Add to display history
+            if (sender !== 'system') { // Don't add system messages if you were to use them for display
+                 conversationHistoryForDisplay.push({ "role": sender, "content": text });
+            }
         }
 
         /**
@@ -280,13 +290,12 @@
 
         /**
          * Displays an error message in the chat.
-         * @param {string} message - The error message to display.
+         * @param {string} messageText - The error message text to display.
          */
-        function displayError(message) {
+        function displayError(messageText) {
             const errorElement = document.createElement('div');
             errorElement.classList.add('error-message');
-            errorElement.textContent = `Error: ${message}. Please check the console for more details. Ensure the API key and endpoint are correct and the service is reachable.`;
-            // Insert error above input area, or within messages
+            errorElement.textContent = `Error: ${messageText}. Please check the console for more details. Ensure the API key and endpoint are correct and the service is reachable.`;
             chatMessages.appendChild(errorElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -300,10 +309,24 @@
             if (messageText === '') return;
 
             addMessageToChat(messageText, 'user');
-            conversationHistory.push({ "role": "user", "content": messageText });
+            // The conversationHistoryForDisplay is updated by addMessageToChat.
+            // The API will now only receive the current user message.
             messageInput.value = ''; // Clear input field
 
             const loadingIndicator = showLoadingIndicator();
+
+            // Construct the payload for the API
+            const apiPayload = {
+                model: 'Hermes-3-Llama-3.1-70B',
+                messages: [
+                    {
+                        role: 'user',
+                        content: messageText,
+                    },
+                ],
+                temperature: 0.7,
+                max_tokens: 100,
+            };
 
             try {
                 const response = await fetch(apiUrl, {
@@ -312,14 +335,7 @@
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        model: 'Hermes-3-Llama-3.1-70B', // As per your snippet
-                        messages: conversationHistory,
-                        // You might need to add other parameters like 'max_tokens', 'temperature'
-                        // depending on the API requirements.
-                        // "max_tokens": 150,
-                        // "temperature": 0.7
-                    }),
+                    body: JSON.stringify(apiPayload), // Send the new payload
                 });
 
                 removeLoadingIndicator(loadingIndicator);
@@ -335,10 +351,10 @@
                 if (data.choices && data.choices.length > 0 && data.choices[0].message) {
                     const botResponse = data.choices[0].message.content;
                     addMessageToChat(botResponse, 'bot');
-                    conversationHistory.push({ "role": "assistant", "content": botResponse });
+                    // The conversationHistoryForDisplay is updated by addMessageToChat.
                 } else {
                     console.error('API Error: Invalid response structure', data);
-                    addMessageToChat("Sorry, I couldn't get a valid response.", 'bot');
+                    addMessageToChat("Sorry, I couldn't get a valid response from the bot.", 'bot');
                 }
 
             } catch (error) {
@@ -351,14 +367,22 @@
         // --- Initialization ---
         applySavedTheme(); // Apply theme on load
 
-        // Security warning for hardcoded API key
+        // Initial security warning
         console.warn(
             "SECURITY WARNING: The API key is hardcoded in the client-side JavaScript. " +
             "This is highly insecure and should NOT be done in a production environment. " +
             "The API key can be easily stolen. For a real application, " +
             "API calls should be proxied through a backend server where the key can be kept secret."
         );
-        addMessageToChat("Reminder: The API key used in this demo is visible in the browser's developer tools. For a real application, this should be handled by a secure backend.", "bot");
+        // Add the initial warning message to the chat display as well
+        // This is done after the HTML for the first bot message is already present.
+        // To avoid duplication, we can check if it's already there or simply let it be.
+        // For this version, the security message is added via JS to ensure it's always present if JS runs.
+        // Consider if the hardcoded HTML message should be removed if this is preferred.
+        if (document.querySelectorAll('.bot-message').length <= 1) { // Add if only the welcome message is there
+            addMessageToChat("Reminder: The API key used in this demo is visible in the browser's developer tools. For a real application, this should be handled by a secure backend.", "bot");
+        }
+
 
     </script>
 </body>
